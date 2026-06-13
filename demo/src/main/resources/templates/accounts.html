@@ -1,50 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Tài khoản')">
-    <section>
-        <div class="page-actions">
-            <a class="btn btn-primary" th:href="@{/admin/accounts/new}">Thêm tài khoản</a>
-        </div>
-        <div class="table-responsive page-section">
-            <table class="table table-bordered table-hover align-middle">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>Họ tên</th>
-                    <th>Email</th>
-                    <th>Vai trò</th>
-                    <th>Trạng thái</th>
-                    <th class="text-center">Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="account : ${accounts}">
-                    <td th:text="${account.id}"></td>
-                    <td th:text="${account.username}"></td>
-                    <td th:text="${account.fullName}"></td>
-                    <td th:text="${account.email}"></td>
-                    <td th:text="${account.role}"></td>
-                    <td th:text="${account.active ? 'Hoạt động' : 'Khóa'}"></td>
-                    <td class="text-center">
-                        <a class="btn btn-sm btn-warning me-1" th:href="@{/admin/accounts/edit/{id}(id=${account.id})}">Sửa</a>
-                        <a class="btn btn-sm btn-danger btn-delete" th:href="@{/admin/accounts/delete/{id}(id=${account.id})}" th:data-name="${account.username}">Xóa</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Quản lý tài khoản')">
+<section>
+    <div class="page-actions">
+        <a class="btn btn-success" th:href="@{/admin/accounts/new}">+ Thêm tài khoản</a>
+    </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('.btn-delete').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        var name = this.getAttribute('data-name') || 'mục này';
-                        if (!confirm('Bạn có chắc chắn muốn xóa "' + name + '" không?\n\nHành động này không thể hoàn tác!')) {
-                            e.preventDefault();
-                        }
-                    });
-                });
-            });
-        </script>
-    </section>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="card p-4 page-section">
+        <table class="table table-bordered align-middle">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Họ tên</th>
+                <th>Vai trò</th>
+                <th>Kích hoạt</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="acc : ${accounts}">
+                <td th:text="${acc.id}"></td>
+                <td th:text="${acc.username}"></td>
+                <td th:text="${acc.email}"></td>
+                <td th:text="${acc.fullName}"></td>
+                <td th:text="${acc.role}"></td>
+                <td th:text="${acc.active} ? 'Có' : 'Không'"></td>
+                <td class="d-flex gap-2">
+                    <a class="btn btn-sm btn-primary" th:href="@{/admin/accounts/edit/{id}(id=${acc.id})}">Sửa</a>
+                    <a class="btn btn-sm btn-warning" th:href="@{/admin/accounts/undo/{id}(id=${acc.id})}">Hoàn tác</a>
+                    <a class="btn btn-sm btn-danger" th:href="@{/admin/accounts/delete/{id}(id=${acc.id})}">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
 </html>

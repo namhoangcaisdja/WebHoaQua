@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: adminLayout('Đơn hàng')">
     <section>
+        <!-- PROTOTYPE PATTERN: Thông báo sau khi nhân bản đơn hàng thành công -->
+        <div th:if="${param.cloned}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            🎉 <strong>Prototype Pattern:</strong> Đơn hàng đã được nhân bản thành công! Đây là bản sao mới với trạng thái <strong>NEW</strong>.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
         <div class="table-responsive page-section">
             <table class="table table-bordered table-hover align-middle">
                 <thead>
@@ -17,11 +23,41 @@
                 <tr th:each="order : ${orders}">
                     <td th:text="${order.id}"></td>
                     <td th:text="${order.customer != null ? order.customer.name : 'Khách vãng lai'}"></td>
-                    <td th:text="${order.status}"></td>
+                    <td>
+                        <span class="badge rounded-pill px-2 py-1"
+                              th:classappend="${order.status.name() == 'NEW'} ? 'bg-secondary' :
+                                             (${order.status.name() == 'PROCESSING'} ? 'bg-primary' :
+                                             (${order.status.name() == 'SHIPPING'} ? 'bg-info text-dark' :
+                                             (${order.status.name() == 'DELIVERED'} ? 'bg-success' : 'bg-danger')))"
+                              th:text="${order.status}"></span>
+                    </td>
                     <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
                     <td th:text="${order.formattedCreatedAt}"></td>
                     <td class="text-center">
-                        <a class="btn btn-sm btn-info" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <!-- Nút xem chi tiết gốc -->
+                            <a class="btn btn-sm btn-info" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
+
+                            <!-- PROTOTYPE PATTERN: Nút nhân bản đơn hàng -->
+                            <form th:action="@{/admin/orders/clone}" method="post" style="display:inline;">
+                                <input type="hidden" name="orderId" th:value="${order.id}" />
+                                <button type="submit" class="btn btn-sm btn-warning fw-bold"
+                                        title="Prototype Pattern: Nhân bản đơn hàng này thành đơn mới"
+                                        onclick="return confirm('Nhân bản đơn hàng #' + this.closest('tr').querySelector('td').textContent + '?\nMột đơn hàng mới (trạng thái NEW) với y hệt sản phẩm sẽ được tạo ra.')">
+                                    🔁 Mua lại
+                                </button>
+                            </form>
+
+                            <!-- Nút xóa đơn hàng -->
+                            <form th:action="@{/admin/orders/delete}" method="post" style="display:inline;">
+                                <input type="hidden" name="orderId" th:value="${order.id}" />
+                                <button type="submit" class="btn btn-sm btn-danger fw-bold"
+                                        title="Xóa đơn hàng này"
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này vĩnh viễn không? Hành động này không thể hoàn tác.')">
+                                    ❌ Xóa
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
